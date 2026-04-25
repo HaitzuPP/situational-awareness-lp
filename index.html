@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Situational Awareness LP</title>
+<style>
+* { box-sizing:border-box; margin:0; padding:0; border-radius:0; }
+:root {
+  --bg:#0d0d0f; --bg2:#0f0f12; --bg3:#0b0b0d;
+  --border:#1a1a20; --border2:#1c1c22; --border3:#161618;
+  --text1:#c8c8c8; --text2:#888; --text3:#5a5a5a; --hero:#ebebeb;
+  --gold:#c8a96e; --green:#4a8f6a; --red:#8f4a4a; --amber:#d4a017;
+  --bar-track:#111116; --hover-bg:#0f0f14;
+  --tag-bg:#111116; --tag-border:#1c1c22;
+  --btn-c:#777; --btn-b:#2a2a30;
+  --fw-c:#c8c8c8; --td-c:#7a7a7a; --th-bg:#0f0f12; --td-border:#141418;
+}
+[data-theme="light"] {
+  --bg:#fff; --bg2:#f7f7f9; --bg3:#f2f2f5;
+  --border:#dde0e8; --border2:#e0e3ea; --border3:#e8e8ed;
+  --text1:#111; --text2:#555; --text3:#999; --hero:#0a0a0a;
+  --gold:#8a5f18; --green:#1c6b3c; --red:#a33020; --amber:#9a6e08;
+  --bar-track:#ebebef; --hover-bg:#f3f3f6;
+  --tag-bg:#ebebef; --tag-border:#dde0e8;
+  --btn-c:#444; --btn-b:#ccc; --fw-c:#111; --td-c:#555;
+  --th-bg:#f7f7f9; --td-border:#e8e8ed;
+}
+body { font-family:Arial,sans-serif; background:var(--bg); color:var(--text1); -webkit-font-smoothing:antialiased; min-height:100vh; }
+.page { max-width:1080px; margin:0 auto; padding:28px 20px 56px; }
+
+/* ── HEADER ── */
+.header { display:flex; align-items:center; justify-content:space-between; margin-bottom:36px; padding-bottom:14px; border-bottom:1px solid var(--border2); }
+.header-brand { font-size:11px; font-weight:800; letter-spacing:3px; text-transform:uppercase; color:var(--gold); }
+.header-sub { font-size:10px; color:var(--text3); letter-spacing:1.5px; text-transform:uppercase; margin-top:3px; }
+.header-right { display:flex; align-items:center; gap:8px; }
+.status-dot { width:6px; height:6px; border-radius:50%; background:var(--green); animation:pulse 2.5s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.25} }
+.status-txt { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--text2); }
+.status-txt.loading{color:var(--gold);} .status-txt.ok{color:var(--green);} .status-txt.err{color:var(--red);}
+.theme-btn { font-family:Arial,sans-serif; font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--btn-c); background:none; border:1px solid var(--btn-b); padding:5px 10px; cursor:pointer; }
+.theme-btn:hover { border-color:var(--gold); color:var(--gold); }
+
+/* ── HERO ── */
+.hero { margin-bottom:28px; }
+.hero-label { font-size:9px; font-weight:700; letter-spacing:2.5px; text-transform:uppercase; color:var(--text2); margin-bottom:10px; }
+.hero-value { font-size:48px; font-weight:800; color:var(--hero); letter-spacing:-2px; line-height:1; margin-bottom:14px; }
+.hero-meta { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+.refresh-btn { font-family:Arial,sans-serif; font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--btn-c); background:none; border:1px solid var(--btn-b); padding:8px 16px; cursor:pointer; }
+.refresh-btn:hover { border-color:var(--gold); color:var(--gold); }
+.refresh-btn:disabled { opacity:.25; cursor:not-allowed; }
+.hero-ts { font-size:10px; color:var(--text3); }
+
+/* ── STATS BAR ── */
+.stats-bar { display:grid; grid-template-columns:repeat(4,1fr); border:1px solid var(--border); margin-bottom:36px; background:var(--bg2); }
+.stat { padding:14px 18px; border-right:1px solid var(--border); }
+.stat:last-child { border-right:none; }
+.stat-label { font-size:9px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--text2); margin-bottom:8px; }
+.stat-value { font-size:17px; font-weight:800; color:var(--text1); line-height:1; letter-spacing:-.5px; }
+.stat-value.green{color:var(--green);} .stat-value.red{color:var(--red);} .stat-value.gold{color:var(--gold);} .stat-value.amber{color:var(--amber);}
+.stat-sub { font-size:10px; color:var(--text3); margin-top:5px; }
+
+/* ── THESIS ── */
+.thesis-box { background:var(--bg2); border:1px solid var(--border); padding:20px 22px; margin-bottom:36px; }
+.thesis-label { font-size:9px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--gold); margin-bottom:12px; }
+.thesis-text { font-size:12px; color:var(--text2); line-height:1.75; max-width:900px; }
+
+/* ── SECTIONS ── */
+.section { margin-bottom:36px; }
+.section-hdr { font-size:9px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--text2); margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border3); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px; }
+.section-note { font-size:9px; font-weight:400; color:var(--text3); letter-spacing:.5px; text-transform:none; }
+
+/* ── ANALYTICS GRID ── */
+.analytics-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--border); border:1px solid var(--border); }
+.an-cell { background:var(--bg2); padding:16px 18px; }
+.an-label { font-size:9px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--text2); margin-bottom:8px; }
+.an-value { font-size:22px; font-weight:800; color:var(--text1); letter-spacing:-.5px; line-height:1; }
+.an-value.green{color:var(--green);} .an-value.red{color:var(--red);} .an-value.gold{color:var(--gold);} .an-value.amber{color:var(--amber);}
+.an-sub { font-size:10px; color:var(--text3); margin-top:5px; }
+
+/* ── TABLE ── */
+.table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.t { width:100%; min-width:780px; border-collapse:collapse; font-size:12px; }
+.t thead th { font-size:9px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--text2); padding:8px 10px; border-bottom:1px solid var(--border); text-align:left; background:var(--th-bg); white-space:nowrap; user-select:none; }
+.t thead th.sortable { cursor:pointer; }
+.t thead th.sortable:hover { color:var(--gold); }
+.t thead th.sort-active { color:var(--gold); }
+.t thead th.tr { text-align:right; }
+.sort-arrow { display:inline-block; margin-left:4px; opacity:.4; font-size:8px; }
+.sort-arrow.active { opacity:1; color:var(--gold); }
+.t tbody td { padding:9px 10px; border-bottom:1px solid var(--td-border); color:var(--td-c); vertical-align:middle; }
+.t tbody tr:last-child td { border-bottom:none; }
+.t tbody tr:hover td { background:var(--hover-bg); }
+.tr { text-align:right; font-variant-numeric:tabular-nums; }
+.fw { font-weight:700; color:var(--fw-c); }
+.green{color:var(--green);} .red{color:var(--red);} .gold{color:var(--gold);} .dim{color:var(--text3);}
+.chain-tag { display:inline-block; font-size:9px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--text2); background:var(--tag-bg); border:1px solid var(--tag-border); padding:2px 5px; white-space:nowrap; }
+
+/* ── BAR CHART ── */
+.bar-row { display:flex; align-items:center; gap:10px; margin-bottom:9px; }
+.bar-lbl { font-size:11px; font-weight:700; color:var(--text2); width:72px; text-align:right; white-space:nowrap; flex-shrink:0; }
+.bar-track { flex:1; background:var(--bar-track); height:13px; border:1px solid var(--border); }
+.bar-fill { height:11px; margin:1px; }
+.bar-val { font-size:11px; font-weight:700; width:140px; text-align:right; flex-shrink:0; }
+
+/* ── SVG CHARTS ── */
+.charts-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:36px; }
+.chart-card { background:var(--bg2); border:1px solid var(--border); padding:16px 18px; }
+.chart-card-title { font-size:9px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--text2); margin-bottom:14px; }
+svg text { font-family:Arial,sans-serif; }
+svg { display:block; width:100%; }
+
+/* ── FOOTER ── */
+.footer { margin-top:40px; padding-top:14px; border-top:1px solid var(--border3); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
+.footer-brand { font-size:11px; color:var(--text3); letter-spacing:2px; text-transform:uppercase; }
+.footer-note { font-size:9px; color:var(--text3); }
+.footer-ts { font-size:10px; color:var(--text3); }
+
+@media(max-width:700px){
+  .page{padding:18px 14px 36px;}
+  .hero-value{font-size:34px;}
+  .stats-bar,.analytics-grid{grid-template-columns:repeat(2,1fr);}
+  .stat:nth-child(2){border-right:none;} .stat:nth-child(3){border-top:1px solid var(--border);}
+  .stat:nth-child(4){border-top:1px solid var(--border);border-right:none;}
+  .charts-grid{grid-template-columns:1fr;}
+  .footer{flex-direction:column;gap:6px;}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <div class="header-brand">Situational Awareness LP</div>
+      <div class="header-sub">Leopold Aschenbrenner &nbsp;·&nbsp; Q4 2025 13F &nbsp;·&nbsp; 29 Positions &nbsp;·&nbsp; Filed 11 Feb 2026</div>
+    </div>
+    <div class="header-right">
+      <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">Light</button>
+      <div class="status-dot"></div>
+      <div class="status-txt" id="statusTxt">Seeded</div>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-label">Portfolio Value (Live)</div>
+    <div class="hero-value" id="heroValue">--</div>
+    <div class="hero-meta">
+      <button class="refresh-btn" id="refreshBtn" onclick="fetchPrices()">Refresh Prices</button>
+      <span class="hero-ts" id="heroTs">Prices seeded 25 Apr 2026 — click Refresh for live</span>
+    </div>
+  </div>
+
+  <!-- STATS BAR -->
+  <div class="stats-bar">
+    <div class="stat">
+      <div class="stat-label">13F Basis</div>
+      <div class="stat-value gold">$5.52B</div>
+      <div class="stat-sub">31 Dec 2025</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">P&amp;L Since 13F</div>
+      <div class="stat-value" id="statPnl">--</div>
+      <div class="stat-sub" id="statPnlSub"></div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Top Gainer</div>
+      <div class="stat-value green" id="statGainer">--</div>
+      <div class="stat-sub">vs 13F price</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Top Loser</div>
+      <div class="stat-value red" id="statLoser">--</div>
+      <div class="stat-sub">vs 13F price</div>
+    </div>
+  </div>
+
+  <!-- THESIS -->
+  <div class="thesis-box">
+    <div class="thesis-label">The Thesis</div>
+    <div class="thesis-text">Aschenbrenner exited Nvidia and Broadcom in Q4 2025. He is betting on the physical infrastructure the AI buildout requires: electricity, data center capacity, and optical networking. Bloom Energy (the flagship) generates power directly at the data center using solid oxide fuel cells, bypassing the overloaded grid. The rest of the book extends that logic: Bitcoin miners with cheap stranded power pivoting to AI/HPC hosting, natural gas producers supplying baseload power, and optical component makers carrying AI traffic between GPUs. The fund scaled from $225M to $5.5B in under a year on this single infrastructure thesis.</div>
+  </div>
+
+  <!-- ANALYTICS -->
+  <div class="section">
+    <div class="section-hdr">Analytics</div>
+    <div class="analytics-grid" id="analyticsGrid"></div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="section">
+    <div class="section-hdr">Visualizations</div>
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-card-title">P&amp;L % by Position (vs 13F basis)</div>
+        <div id="chartPnl"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">Theme: Allocation vs P&amp;L</div>
+        <div id="chartTheme"></div>
+      </div>
+    </div>
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-card-title">Position Size Distribution</div>
+        <div id="chartSize"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">1-Day Change by Position</div>
+        <div id="chartDay"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="section">
+    <div class="section-hdr">
+      Positions
+      <span class="section-note">Click any column to sort &nbsp;·&nbsp; Options P&amp;L approx by underlying &nbsp;·&nbsp; SOI=SEI &nbsp;·&nbsp; BITF=KEEL</span>
+    </div>
+    <div class="table-wrap">
+      <table class="t">
+        <thead>
+          <tr>
+            <th class="sortable" data-col="ticker">Ticker <span class="sort-arrow" id="arr-ticker">▲</span></th>
+            <th class="sortable" data-col="name">Name <span class="sort-arrow" id="arr-name">▲</span></th>
+            <th class="sortable" data-col="type">Type <span class="sort-arrow" id="arr-type">▲</span></th>
+            <th class="sortable" data-col="theme">Theme <span class="sort-arrow" id="arr-theme">▲</span></th>
+            <th>Why he owns it</th>
+            <th class="sortable tr" data-col="entry">Entry <span class="sort-arrow" id="arr-entry">▲</span></th>
+            <th class="sortable tr" data-col="live">Live <span class="sort-arrow" id="arr-live">▲</span></th>
+            <th class="sortable tr" data-col="pnl">P&amp;L $ <span class="sort-arrow" id="arr-pnl">▲</span></th>
+            <th class="sortable tr" data-col="pnlpct">P&amp;L % <span class="sort-arrow" id="arr-pnlpct">▲</span></th>
+            <th class="sortable tr" data-col="day">1D <span class="sort-arrow" id="arr-day">▲</span></th>
+            <th class="sortable tr" data-col="port">Port % <span class="sort-arrow" id="arr-port">▲</span></th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ALLOCATION -->
+  <div class="section">
+    <div class="section-hdr">Allocation by Theme</div>
+    <div id="allocChart"></div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-brand">Situational Awareness LP</div>
+    <div class="footer-note">Data: NASDAQ API &nbsp;·&nbsp; 13F: SEC EDGAR CIK 0002045724 &nbsp;·&nbsp; Seeded 25 Apr 2026</div>
+    <div class="footer-ts" id="footerTs"></div>
+  </div>
+</div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────────────────────
+const holdings = [
+  { ticker:'BE',   name:'Bloom Energy',        type:'SHS',  theme:'POWER',    why:'Solid oxide fuel cells generate power directly at the data center, bypassing the overloaded grid',    shares:10076022, entry:86.89,  v13f:875505 },
+  { ticker:'CRWV', name:'CoreWeave',            type:'CALL', theme:'AI INFRA', why:'GPU-rich AI cloud; calls give leveraged exposure to the AI compute buildout',                          shares:10814500, entry:71.61,  v13f:774426 },
+  { ticker:'INTC', name:'Intel',                type:'CALL', theme:'SEMI',     why:'Contrarian bet on US chip manufacturing revival and Intel turnaround via call options',               shares:20237400, entry:36.90,  v13f:746760 },
+  { ticker:'LITE', name:'Lumentum',             type:'SHS',  theme:'OPTICAL',  why:'800G optical components for AI data center interconnects',                                             shares:1298400,  entry:368.60, v13f:478577 },
+  { ticker:'CRWV', name:'CoreWeave',            type:'SHS',  theme:'AI INFRA', why:'Direct equity in the leading AI cloud infrastructure provider',                                        shares:6098812,  entry:71.61,  v13f:436735 },
+  { ticker:'CORZ', name:'Core Scientific',      type:'SHS',  theme:'COMPUTE',  why:'BTC miner converting facilities to AI/HPC hosting; owns real estate and power contracts',             shares:28756478, entry:14.56,  v13f:418694 },
+  { ticker:'IREN', name:'IREN Ltd',             type:'SHS',  theme:'COMPUTE',  why:'Cheap stranded hydro power + BTC mining infrastructure pivoting to AI compute',                       shares:8700621,  entry:37.77,  v13f:328622 },
+  { ticker:'APLD', name:'Applied Digital',      type:'SHS',  theme:'COMPUTE',  why:'Purpose-built AI/HPC data centers converting power access into compute capacity',                    shares:11339060, entry:24.52,  v13f:278033 },
+  { ticker:'SNDK', name:'SanDisk',              type:'SHS',  theme:'STORAGE',  why:'AI training datasets demand massive flash storage; WD spin-off with clean balance sheet',             shares:1054200,  entry:237.39, v13f:250245 },
+  { ticker:'CIFR', name:'Cipher Mining',        type:'SHS',  theme:'COMPUTE',  why:'Low-cost power with optionality to pivot from BTC to AI workloads',                                   shares:10469093, entry:14.76,  v13f:154523 },
+  { ticker:'EQT',  name:'EQT Corp',             type:'SHS',  theme:'POWER',    why:'Largest US natural gas producer; data centers driving baseload gas demand growth',                    shares:2482225,  entry:53.60,  v13f:133047 },
+  { ticker:'COHR', name:'Coherent Corp',        type:'SHS',  theme:'OPTICAL',  why:'Optical transceivers for AI cluster fabric networking; 800G demand accelerating',                    shares:480300,   entry:184.57, v13f:88648  },
+  { ticker:'SOI',  name:'Solaris Energy (SEI)', type:'SHS',  theme:'POWER',    why:'Mobile gas-fired power generation deployed to remote and off-grid data centers',                      shares:1866500,  entry:45.97,  v13f:85803  },
+  { ticker:'TSEM', name:'Tower Semiconductor',  type:'SHS',  theme:'SEMI',     why:'Specialty analog/mixed-signal fab with unique process technology',                                    shares:723004,   entry:117.42, v13f:84895  },
+  { ticker:'RIOT', name:'Riot Platforms',       type:'SHS',  theme:'COMPUTE',  why:'Large-scale power contracts + BTC mining with AI hosting optionality',                               shares:6167700,  entry:12.67,  v13f:78144  },
+  { ticker:'KRC',  name:'Kilroy Realty',        type:'SHS',  theme:'REIT',     why:'West Coast data center REIT; land and power access in dense coastal markets',                        shares:1327700,  entry:37.37,  v13f:49616  },
+  { ticker:'HUT',  name:'Hut 8 Corp',           type:'SHS',  theme:'COMPUTE',  why:'Canadian BTC miner pivoting to AI/HPC; owns hundreds of MW of power capacity',                      shares:860200,   entry:45.94,  v13f:39517  },
+  { ticker:'EQT',  name:'EQT Corp',             type:'CALL', theme:'POWER',    why:'Leveraged upside on natural gas demand via calls',                                                    shares:700000,   entry:53.60,  v13f:37520  },
+  { ticker:'BE',   name:'Bloom Energy',         type:'CALL', theme:'POWER',    why:'Calls add convexity to the flagship BE position',                                                     shares:408500,   entry:86.89,  v13f:35494  },
+  { ticker:'WYFI', name:'WhiteFiber',           type:'SHS',  theme:'AI INFRA', why:'Early-stage distributed AI infrastructure; small position with high optionality',                    shares:1757600,  entry:15.80,  v13f:27770  },
+  { ticker:'PSIX', name:'Power Solutions Intl', type:'SHS',  theme:'POWER',    why:'Industrial gas power gen units deployable where grid access is constrained',                         shares:432300,   entry:57.14,  v13f:24701  },
+  { ticker:'BTDR', name:'Bitdeer Technologies', type:'SHS',  theme:'COMPUTE',  why:'Asia-Pacific miner designing own ASIC chips; vertically integrated compute play',                   shares:1788000,  entry:11.21,  v13f:20043  },
+  { ticker:'CLSK', name:'CleanSpark',           type:'SHS',  theme:'COMPUTE',  why:'Renewable-powered BTC mining with clean power contracts and AI pivot optionality',                   shares:1640400,  entry:10.12,  v13f:16600  },
+  { ticker:'BITF', name:'Bitfarms (KEEL)',      type:'SHS',  theme:'COMPUTE',  why:'Rebranded Keel Infrastructure; geographically diversified miner with Americas/Europe power',         shares:6897100,  entry:2.35,   v13f:16208  },
+  { ticker:'LBRT', name:'Liberty Energy',       type:'SHS',  theme:'POWER',    why:'Pressure pumping services; gas production growth drives fleet demand',                              shares:567200,   entry:18.46,  v13f:10470  },
+  { ticker:'INFY', name:'Infosys ADR',          type:'PUT',  theme:'SHORT',    why:'Put options: AI directly displaces legacy IT outsourcing model',                                     shares:500000,   entry:17.82,  v13f:8910   },
+  { ticker:'PUMP', name:'ProPetro Holding',     type:'SHS',  theme:'POWER',    why:'Oilfield pressure pumping; benefits from gas production growth tied to AI demand',                  shares:910300,   entry:9.51,   v13f:8656   },
+  { ticker:'BW',   name:'Babcock & Wilcox',     type:'SHS',  theme:'POWER',    why:'Industrial boilers and energy systems for data center campuses',                                     shares:1353900,  entry:6.34,   v13f:8583   },
+  { ticker:'INTC', name:'Intel (closed)',       type:'SHS',  theme:'SEMI',     why:'Single token share after near-full liquidation of equity',                                           shares:1,        entry:0,      v13f:0      },
+];
+
+const TICKER_MAP   = { SOI:'SEI', BITF:'KEEL' };
+const THEME_COLORS = {
+  'POWER':'#c8a96e','AI INFRA':'#4a8f6a','COMPUTE':'#4a7a9f',
+  'OPTICAL':'#9f7a4a','SEMI':'#7a4a9f','STORAGE':'#4a9f9f',
+  'REIT':'#6a9f4a','SHORT':'#8f4a4a'
+};
+
+// Seeded prices (NASDAQ API, 25 Apr 2026)
+const SEED = {
+  BE:{price:231.17,changePct:-2.69},CRWV:{price:110.14,changePct:-6.20},
+  INTC:{price:82.54,changePct:23.60},LITE:{price:881.64,changePct:4.10},
+  CORZ:{price:20.88,changePct:0.34},IREN:{price:50.64,changePct:-2.65},
+  APLD:{price:34.98,changePct:-3.77},SNDK:{price:989.90,changePct:6.16},
+  CIFR:{price:18.20,changePct:-2.62},EQT:{price:58.91,changePct:-0.03},
+  COHR:{price:336.09,changePct:-0.47},SOI:{price:72.41,changePct:4.22},
+  TSEM:{price:200.54,changePct:-0.36},RIOT:{price:18.61,changePct:2.20},
+  KRC:{price:31.88,changePct:1.34},HUT:{price:76.87,changePct:-2.41},
+  BTDR:{price:12.06,changePct:-0.82},CLSK:{price:12.76,changePct:4.33},
+  BITF:{price:3.29,changePct:1.54},LBRT:{price:32.74,changePct:1.30},
+  INFY:{price:12.86,changePct:-0.62},PUMP:{price:17.00,changePct:1.01},
+  BW:{price:14.50,changePct:-7.41},WYFI:{price:16.55,changePct:-1.02},
+  PSIX:{price:77.04,changePct:-1.52}
+};
+let prices = JSON.parse(JSON.stringify(SEED));
+
+// Sort state
+let sortCol = 'pnlpct', sortDir = -1;
+
+// ─── UTILS ───────────────────────────────────────────────────────────────────
+const fmt  = (n,d=2) => n==null||isNaN(n)?'N/A':n.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fmtC = n => { const a=Math.abs(n); return a>=1e9?(n/1e9).toFixed(2)+'B':a>=1e6?(n/1e6).toFixed(1)+'M':a>=1e3?(n/1e3).toFixed(0)+'K':n.toFixed(0); };
+const sign = n => n>=0?'+':'';
+const pcls = n => n==null?'':n>=0?'green':'red';
+const isLight = () => document.documentElement.getAttribute('data-theme')==='light';
+
+// ─── THEME ───────────────────────────────────────────────────────────────────
+function toggleTheme() {
+  const light = !isLight();
+  document.documentElement.setAttribute('data-theme', light?'light':'dark');
+  document.getElementById('themeBtn').textContent = light?'Dark':'Light';
+  try { localStorage.setItem('sa_theme', light?'light':'dark'); } catch(e){}
+  renderAll();
+}
+(function(){
+  let s; try{s=localStorage.getItem('sa_theme');}catch(e){}
+  if(s==='light'){
+    document.documentElement.setAttribute('data-theme','light');
+    window.addEventListener('DOMContentLoaded',()=>{const b=document.getElementById('themeBtn');if(b)b.textContent='Dark';});
+  }
+})();
+function setStatus(m,t=''){const el=document.getElementById('statusTxt');el.textContent=m;el.className='status-txt '+t;}
+
+// ─── FETCH ───────────────────────────────────────────────────────────────────
+async function fetchOneTicker(tk) {
+  const apiTk = TICKER_MAP[tk]||tk;
+  const r = await fetch(`https://api.nasdaq.com/api/quote/${apiTk}/info?assetClass=stocks`,
+    {headers:{Accept:'application/json',Referer:'https://www.nasdaq.com/'}});
+  const d = await r.json();
+  const info = d?.data?.primaryData||{};
+  const price = parseFloat((info.lastSalePrice||'').replace(/[$,]/g,''));
+  const chg   = parseFloat((info.percentageChange||'').replace(/[%+]/g,''));
+  return price>0?{price,changePct:chg}:null;
+}
+async function fetchPrices() {
+  const btn=document.getElementById('refreshBtn');
+  btn.disabled=true; setStatus('Fetching...','loading');
+  const uniq=[...new Set(holdings.filter(h=>h.v13f>0).map(h=>h.ticker))];
+  let ok=0;
+  const res=await Promise.allSettled(uniq.map(tk=>fetchOneTicker(tk).then(p=>({tk,p}))));
+  res.forEach(r=>{if(r.status==='fulfilled'&&r.value.p){prices[r.value.tk]=r.value.p;ok++;}});
+  document.getElementById('heroTs').textContent=`Updated ${new Date().toLocaleTimeString()} via NASDAQ API`;
+  document.getElementById('footerTs').textContent=new Date().toISOString().replace('T',' ').slice(0,19)+' UTC';
+  setStatus(`Live (${ok}/${uniq.length})`,ok>0?'ok':'err');
+  renderAll();
+  btn.disabled=false;
+}
+
+// ─── COMPUTE ROW DATA ────────────────────────────────────────────────────────
+function computeRows(totalLive) {
+  return holdings.map(h => {
+    const lp      = prices[h.ticker]?.price??null;
+    const day     = prices[h.ticker]?.changePct??null;
+    const basis   = h.v13f*1000;
+    const liveVal = lp!=null ? h.shares*lp : null;
+    const pnl     = liveVal!=null&&basis>0 ? liveVal-basis : null;
+    const pnlPct  = pnl!=null&&basis>0 ? (pnl/basis)*100 : null;
+    const port    = totalLive>0 ? ((liveVal??basis)/totalLive)*100 : 0;
+    return {...h, lp, day, basis, liveVal, pnl, pnlPct, port};
+  });
+}
+function totals() {
+  let tLive=0, tBasis=0;
+  holdings.forEach(h=>{
+    const lp=prices[h.ticker]?.price??null;
+    const basis=h.v13f*1000;
+    tBasis+=basis;
+    tLive+=lp!=null?h.shares*lp:basis;
+  });
+  return {tLive,tBasis};
+}
+
+// ─── RENDER ALL ──────────────────────────────────────────────────────────────
+function renderAll() {
+  const {tLive,tBasis}=totals();
+  const rows=computeRows(tLive);
+
+  // Hero & stats
+  document.getElementById('heroValue').textContent='$'+fmtC(tLive);
+  const pnl=tLive-tBasis, pnlPct=(pnl/tBasis)*100;
+  const pnlEl=document.getElementById('statPnl');
+  pnlEl.textContent=sign(pnl)+'$'+fmtC(pnl);
+  pnlEl.className='stat-value '+(pnl>=0?'green':'red');
+  document.getElementById('statPnlSub').textContent=sign(pnlPct)+fmt(pnlPct)+'% vs 13F basis';
+
+  const active=rows.filter(r=>r.v13f>0&&r.pnlPct!=null);
+  const sorted=[...active].sort((a,b)=>b.pnlPct-a.pnlPct);
+  const best=sorted[0], worst=sorted[sorted.length-1];
+  if(best)  document.getElementById('statGainer').textContent=best.ticker+' +'+fmt(best.pnlPct)+'%';
+  if(worst) document.getElementById('statLoser').textContent=worst.ticker+' '+fmt(worst.pnlPct)+'%';
+
+  renderAnalytics(rows, tLive, tBasis);
+  renderChartPnl(sorted);
+  renderChartTheme(rows, tLive);
+  renderChartSize(rows, tLive);
+  renderChartDay(rows);
+  renderTable(rows, tLive);
+  renderAlloc(rows, tLive);
+}
+
+// ─── ANALYTICS ───────────────────────────────────────────────────────────────
+function renderAnalytics(rows, tLive, tBasis) {
+  const active = rows.filter(r=>r.v13f>0&&r.pnlPct!=null);
+  const winners = active.filter(r=>r.pnlPct>0).length;
+  const avgPnlPct = active.reduce((s,r)=>s+r.pnlPct,0)/active.length;
+  const byPort = [...active].sort((a,b)=>b.port-a.port);
+  const top3Conc = byPort.slice(0,3).reduce((s,r)=>s+r.port,0);
+  const optRows = rows.filter(r=>r.type==='CALL'||r.type==='PUT');
+  const optExp = optRows.reduce((s,r)=>s+(r.liveVal??r.basis),0)/tLive*100;
+  const bestRow = [...active].sort((a,b)=>b.pnlPct-a.pnlPct)[0];
+  const worstRow = [...active].sort((a,b)=>a.pnlPct-b.pnlPct)[0];
+  const bigPos = byPort[0];
+  const totalPnl = tLive-tBasis;
+
+  const cells = [
+    {label:'Win Rate',    value:`${winners}/${active.length}`, sub:`${((winners/active.length)*100).toFixed(0)}% positions positive`, cls:'gold'},
+    {label:'Avg P&L',    value:sign(avgPnlPct)+fmt(avgPnlPct)+'%', sub:'mean across active positions', cls:avgPnlPct>=0?'green':'red'},
+    {label:'Top 3 Conc.', value:fmt(top3Conc,1)+'%', sub:byPort.slice(0,3).map(r=>r.ticker).join(' · '), cls:'amber'},
+    {label:'Options Exp.',value:fmt(optExp,1)+'%', sub:'CALL + PUT positions by value', cls:''},
+    {label:'Biggest Win', value:bestRow?bestRow.ticker:'-', sub:bestRow?'+'+fmt(bestRow.pnlPct)+'% · $'+fmtC(bestRow.pnl):'-', cls:'green'},
+    {label:'Biggest Loss',value:worstRow?worstRow.ticker:'-', sub:worstRow?fmt(worstRow.pnlPct)+'% · $'+fmtC(worstRow.pnl):'-', cls:'red'},
+    {label:'Largest Pos.', value:bigPos?bigPos.ticker:'-', sub:bigPos?fmt(bigPos.port,1)+'% of portfolio':'-', cls:'gold'},
+    {label:'Total P&L',   value:sign(totalPnl)+'$'+fmtC(totalPnl), sub:'since 31 Dec 2025 13F', cls:totalPnl>=0?'green':'red'},
+  ];
+  document.getElementById('analyticsGrid').innerHTML = cells.map(c=>
+    `<div class="an-cell"><div class="an-label">${c.label}</div><div class="an-value ${c.cls}">${c.value}</div><div class="an-sub">${c.sub}</div></div>`
+  ).join('');
+}
+
+// ─── SVG HELPERS ─────────────────────────────────────────────────────────────
+function svgColor(key) {
+  const dark = { gold:'#c8a96e',green:'#4a8f6a',red:'#8f4a4a',text2:'#888',text3:'#5a5a5a',bg2:'#0f0f12',border:'#1a1a20',track:'#111116' };
+  const light= { gold:'#8a5f18',green:'#1c6b3c',red:'#a33020',text2:'#555',text3:'#999',bg2:'#f7f7f9',border:'#dde0e8',track:'#ebebef' };
+  return (isLight()?light:dark)[key]||'#888';
+}
+
+// ─── CHART: P&L BY POSITION ──────────────────────────────────────────────────
+function renderChartPnl(sorted) {
+  const el = document.getElementById('chartPnl');
+  if(!sorted.length){el.innerHTML='';return;}
+  const W=440, rowH=18, padL=52, padR=60, padT=8, padB=4;
+  const H=padT+sorted.length*rowH+padB;
+  const pcts=sorted.map(r=>r.pnlPct);
+  const maxAbs=Math.max(...pcts.map(Math.abs),1);
+  const midX=padL+(W-padL-padR)/2;
+  const scale=(W-padL-padR)/2/maxAbs;
+  const txt1=isLight()?'#111':'#c8c8c8', txt2=svgColor('text2'), txt3=svgColor('text3');
+  let s=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+  // zero line
+  s+=`<line x1="${midX}" y1="${padT}" x2="${midX}" y2="${H-padB}" stroke="${svgColor('border')}" stroke-width="1"/>`;
+  sorted.forEach((r,i)=>{
+    const y=padT+i*rowH;
+    const cy=y+rowH/2;
+    const barW=Math.abs(r.pnlPct)*scale;
+    const isPos=r.pnlPct>=0;
+    const color=isPos?svgColor('green'):svgColor('red');
+    const x=isPos?midX:midX-barW;
+    s+=`<rect x="${x.toFixed(1)}" y="${(y+3).toFixed(1)}" width="${barW.toFixed(1)}" height="${(rowH-6)}" fill="${color}" opacity="0.8"/>`;
+    s+=`<text x="${(padL-4)}" y="${cy+4}" text-anchor="end" font-size="10" font-weight="700" fill="${txt2}">${r.ticker}</text>`;
+    const valX=isPos?midX+barW+4:midX-barW-4;
+    const anchor=isPos?'start':'end';
+    s+=`<text x="${valX.toFixed(1)}" y="${cy+4}" text-anchor="${anchor}" font-size="10" font-weight="700" fill="${color}">${sign(r.pnlPct)}${fmt(r.pnlPct,0)}%</text>`;
+  });
+  s+=`</svg>`;
+  el.innerHTML=s;
+}
+
+// ─── CHART: THEME P&L VS ALLOCATION ─────────────────────────────────────────
+function renderChartTheme(rows, tLive) {
+  const el=document.getElementById('chartTheme');
+  const themeData={};
+  rows.forEach(r=>{
+    if(!themeData[r.theme]) themeData[r.theme]={alloc:0,pnl:0,basis:0,live:0};
+    const d=themeData[r.theme];
+    d.live+=(r.liveVal??r.basis);
+    d.basis+=r.basis;
+    d.alloc+=(r.liveVal??r.basis)/tLive*100;
+  });
+  Object.keys(themeData).forEach(k=>{
+    const d=themeData[k];
+    d.pnlPct=d.basis>0?((d.live-d.basis)/d.basis)*100:0;
+  });
+  const themes=Object.entries(themeData).sort((a,b)=>b[1].alloc-a[1].alloc);
+  const W=440, rowH=30, padL=70, padR=8, padT=8;
+  const H=padT+themes.length*rowH+8;
+  const maxAlloc=Math.max(...themes.map(t=>t[1].alloc),1);
+  const maxPnl=Math.max(...themes.map(t=>Math.abs(t[1].pnlPct)),1);
+  const barMaxW=(W-padL-padR-90);
+  const txt2=svgColor('text2');
+  let s=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+  themes.forEach(([theme,d],i)=>{
+    const y=padT+i*rowH;
+    const color=THEME_COLORS[theme]||'#888';
+    const allocW=(d.alloc/maxAlloc)*barMaxW*0.95;
+    const pnlPct=d.pnlPct;
+    const pnlColor=pnlPct>=0?svgColor('green'):svgColor('red');
+    // Alloc bar
+    s+=`<rect x="${padL}" y="${y+2}" width="${allocW.toFixed(1)}" height="11" fill="${color}" opacity="0.5"/>`;
+    // P&L bar (smaller, below alloc)
+    const pnlW=Math.min(Math.abs(pnlPct)/maxPnl*barMaxW*0.6, barMaxW*0.9);
+    s+=`<rect x="${padL}" y="${y+15}" width="${pnlW.toFixed(1)}" height="9" fill="${pnlColor}" opacity="0.75"/>`;
+    // Labels
+    s+=`<text x="${padL-5}" y="${y+11}" text-anchor="end" font-size="10" font-weight="700" fill="${color}">${theme}</text>`;
+    s+=`<text x="${padL+allocW+5}" y="${y+12}" font-size="10" fill="${txt2}">${fmt(d.alloc,1)}%</text>`;
+    s+=`<text x="${padL+pnlW+5}" y="${y+23}" font-size="9" fill="${pnlColor}">${sign(pnlPct)}${fmt(pnlPct,0)}%</text>`;
+  });
+  // Legend
+  const ly=H-4;
+  s+=`<rect x="${padL}" y="${ly-7}" width="8" height="7" fill="${svgColor('gold')}" opacity="0.5"/>`;
+  s+=`<text x="${padL+11}" y="${ly}" font-size="8" fill="${txt2}">Allocation</text>`;
+  s+=`<rect x="${padL+72}" y="${ly-7}" width="8" height="7" fill="${svgColor('green')}" opacity="0.75"/>`;
+  s+=`<text x="${padL+83}" y="${ly}" font-size="8" fill="${txt2}">P&amp;L %</text>`;
+  s+=`</svg>`;
+  el.innerHTML=s;
+}
+
+// ─── CHART: POSITION SIZE DISTRIBUTION ──────────────────────────────────────
+function renderChartSize(rows, tLive) {
+  const el=document.getElementById('chartSize');
+  const active=rows.filter(r=>r.v13f>0).sort((a,b)=>(b.liveVal??b.basis)-(a.liveVal??a.basis)).slice(0,15);
+  const W=440, rowH=20, padL=52, padR=56, padT=8, padB=4;
+  const H=padT+active.length*rowH+padB;
+  const maxVal=active[0]?(active[0].liveVal??active[0].basis):1;
+  const trackW=W-padL-padR;
+  const txt2=svgColor('text2'),track=svgColor('track'),border=svgColor('border');
+  let s=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+  active.forEach((r,i)=>{
+    const y=padT+i*rowH;
+    const cy=y+rowH/2;
+    const val=r.liveVal??r.basis;
+    const w=((val/maxVal)*trackW*0.96).toFixed(1);
+    const color=THEME_COLORS[r.theme]||'#888';
+    s+=`<rect x="${padL}" y="${y+3}" width="${trackW}" height="${rowH-6}" fill="${track}" stroke="${border}" stroke-width="0.5"/>`;
+    s+=`<rect x="${padL+1}" y="${y+4}" width="${Math.max(1,w-2)}" height="${rowH-8}" fill="${color}" opacity="0.75"/>`;
+    s+=`<text x="${padL-4}" y="${cy+4}" text-anchor="end" font-size="10" font-weight="700" fill="${txt2}">${r.ticker}</text>`;
+    s+=`<text x="${padL+parseFloat(w)+6}" y="${cy+4}" font-size="10" fill="${txt2}">$${fmtC(val)}</text>`;
+  });
+  s+=`</svg>`;
+  el.innerHTML=s;
+}
+
+// ─── CHART: 1-DAY CHANGE ─────────────────────────────────────────────────────
+function renderChartDay(rows) {
+  const el=document.getElementById('chartDay');
+  const active=rows.filter(r=>r.v13f>0&&r.day!=null).sort((a,b)=>b.day-a.day);
+  const W=440, rowH=18, padL=52, padR=52, padT=8, padB=4;
+  const H=padT+active.length*rowH+padB;
+  const maxAbs=Math.max(...active.map(r=>Math.abs(r.day)),0.1);
+  const midX=padL+(W-padL-padR)/2;
+  const scale=(W-padL-padR)/2/maxAbs;
+  const txt2=svgColor('text2');
+  let s=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+  s+=`<line x1="${midX}" y1="${padT}" x2="${midX}" y2="${H-padB}" stroke="${svgColor('border')}" stroke-width="1"/>`;
+  active.forEach((r,i)=>{
+    const y=padT+i*rowH;
+    const cy=y+rowH/2;
+    const barW=Math.abs(r.day)*scale;
+    const isPos=r.day>=0;
+    const color=isPos?svgColor('green'):svgColor('red');
+    const x=isPos?midX:midX-barW;
+    s+=`<rect x="${x.toFixed(1)}" y="${(y+3).toFixed(1)}" width="${barW.toFixed(1)}" height="${rowH-6}" fill="${color}" opacity="0.8"/>`;
+    s+=`<text x="${(padL-4)}" y="${cy+4}" text-anchor="end" font-size="10" font-weight="700" fill="${txt2}">${r.ticker}</text>`;
+    const valX=isPos?midX+barW+4:midX-barW-4;
+    const anchor=isPos?'start':'end';
+    s+=`<text x="${valX.toFixed(1)}" y="${cy+4}" text-anchor="${anchor}" font-size="10" font-weight="700" fill="${color}">${sign(r.day)}${fmt(r.day,1)}%</text>`;
+  });
+  s+=`</svg>`;
+  el.innerHTML=s;
+}
+
+// ─── SORTABLE TABLE ───────────────────────────────────────────────────────────
+function sortBy(col) {
+  if(sortCol===col) sortDir*=-1;
+  else { sortCol=col; sortDir=col==='pnlpct'?-1:1; }
+  // Update arrow indicators
+  document.querySelectorAll('.sort-arrow').forEach(a=>a.classList.remove('active'));
+  const arr=document.getElementById('arr-'+col);
+  if(arr){ arr.textContent=sortDir===1?'▲':'▼'; arr.classList.add('active'); }
+  document.querySelectorAll('thead th').forEach(th=>th.classList.remove('sort-active'));
+  const th=document.querySelector(`[data-col="${col}"]`);
+  if(th) th.classList.add('sort-active');
+  const {tLive}=totals();
+  renderTable(computeRows(tLive),tLive);
+}
+// Wire up header clicks
+document.addEventListener('DOMContentLoaded',()=>{
+  document.querySelectorAll('.sortable').forEach(th=>{
+    th.addEventListener('click',()=>sortBy(th.dataset.col));
+  });
+});
+
+function renderTable(rows, tLive) {
+  if(!tLive){const t=totals();tLive=t.tLive;}
+  const keyOf = r => {
+    const m = {ticker:r.ticker,name:r.name,type:r.type,theme:r.theme,
+               entry:r.entry,live:r.lp??-Infinity,pnl:r.pnl??-Infinity,
+               pnlpct:r.pnlPct??-Infinity,day:r.day??-Infinity,port:r.port};
+    return m[sortCol]??0;
+  };
+  const sorted=[...rows].sort((a,b)=>{
+    const av=keyOf(a), bv=keyOf(b);
+    if(typeof av==='string') return sortDir*av.localeCompare(bv);
+    return sortDir*(av-bv);
+  });
+
+  const tbody=document.getElementById('tbody');
+  tbody.innerHTML='';
+  sorted.forEach(h=>{
+    const isClosed=h.shares===1&&h.entry===0;
+    const thColor=THEME_COLORS[h.theme]||'#888';
+    const dayHtml=h.day!=null?`<span class="${h.day>=0?'green':'red'}">${sign(h.day)}${fmt(h.day,1)}%</span>`:'<span class="dim">--</span>';
+    const liveHtml=h.lp!=null?`<span class="${h.day!=null?(h.day>=0?'green':'red'):''}">$${fmt(h.lp)}</span>`:'<span class="dim">--</span>';
+    const pnlHtml=h.pnl!=null?`<span class="fw ${pcls(h.pnl)}">${sign(h.pnl)}$${fmtC(h.pnl)}</span>`:'<span class="dim">--</span>';
+    const pnlPctHtml=h.pnlPct!=null?`<span class="fw ${pcls(h.pnlPct)}">${sign(h.pnlPct)}${fmt(h.pnlPct)}%</span>`:'<span class="dim">--</span>';
+    const tr=document.createElement('tr');
+    if(isClosed) tr.style.opacity='0.3';
+    tr.innerHTML=`
+      <td class="fw gold">${h.ticker}</td>
+      <td class="fw" style="white-space:nowrap;font-size:11px;">${h.name}</td>
+      <td><span class="chain-tag">${h.type}</span></td>
+      <td><span class="chain-tag" style="color:${thColor};border-color:${thColor}33;">${h.theme}</span></td>
+      <td style="font-size:11px;color:var(--text3);max-width:280px;">${h.why}</td>
+      <td class="tr dim">${isClosed?'CLOSED':h.entry>0?'$'+fmt(h.entry):'--'}</td>
+      <td class="tr">${liveHtml}</td>
+      <td class="tr">${pnlHtml}</td>
+      <td class="tr">${pnlPctHtml}</td>
+      <td class="tr">${dayHtml}</td>
+      <td class="tr dim">${fmt(h.port,1)}%</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// ─── ALLOCATION BARS ─────────────────────────────────────────────────────────
+function renderAlloc(rows, tLive) {
+  const map={};
+  rows.forEach(r=>{
+    const val=r.liveVal??r.basis;
+    map[r.theme]=(map[r.theme]||0)+val;
+  });
+  const sorted=Object.entries(map).sort((a,b)=>b[1]-a[1]);
+  const maxVal=sorted[0]?.[1]||1;
+  document.getElementById('allocChart').innerHTML=sorted.map(([theme,val])=>{
+    const pct=(val/tLive*100).toFixed(1);
+    const fill=(val/maxVal*100).toFixed(1);
+    const color=THEME_COLORS[theme]||'#888';
+    return `<div class="bar-row">
+      <div class="bar-lbl">${theme}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${fill}%;background:${color};opacity:.85;"></div></div>
+      <div class="bar-val" style="color:${color};">$${fmtC(val)} <span style="color:var(--text3);font-weight:400;">${pct}%</span></div>
+    </div>`;
+  }).join('');
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+// Set initial sort arrow
+document.addEventListener('DOMContentLoaded',()=>{
+  const arr=document.getElementById('arr-pnlpct');
+  if(arr){arr.textContent='▼';arr.classList.add('active');}
+  const th=document.querySelector('[data-col="pnlpct"]');
+  if(th) th.classList.add('sort-active');
+});
+renderAll();
+setStatus('Seeded','ok');
+</script>
+</body>
+</html>
